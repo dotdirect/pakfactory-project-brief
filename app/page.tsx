@@ -10,7 +10,7 @@ export default function Home() {
         <div className="grid w-full grid-cols-[60%_40%]">
           {/* Left Side (60%) - Botpress Chat */}
           <BotpressChat />
-
+    {/* test */}
           {/* Right Side (40%) - Technical Brief */}
           <BriefDisplay />
         </div>
