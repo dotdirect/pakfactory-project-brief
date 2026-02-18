@@ -70,7 +70,7 @@ export function BriefProvider({ children }: { children: React.ReactNode }) {
     }
 
     // Listen for storage events (cross-tab updates)
-    window.addEventListener('storage', handleStorageChange)
+    // window.addEventListener('storage', handleStorageChange) // DISABLED
     
     // Poll for updates from webhook cache and localStorage
     const checkForUpdates = async () => {
@@ -123,7 +123,7 @@ export function BriefProvider({ children }: { children: React.ReactNode }) {
     const interval = setInterval(checkForUpdates, 2000)
     
     return () => {
-      window.removeEventListener('storage', handleStorageChange)
+      // window.removeEventListener('storage', handleStorageChange) // DISABLED
       clearInterval(interval)
     }
   }, [brief])
