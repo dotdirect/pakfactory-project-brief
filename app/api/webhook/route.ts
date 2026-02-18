@@ -1,5 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { storeBrief } from '@/app/lib/brief-store'
+import { cacheWebhookData } from '@/app/lib/webhook-cache'
+
+// CORS headers for Botpress - allows requests from any origin
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+}
+
+export async function OPTIONS() {
+  return NextResponse.json({}, { headers: corsHeaders })
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -15,32 +26,44 @@ export async function POST(request: NextRequest) {
           success: false, 
           error: 'Missing required fields: fullName, userEmail, and productType are required' 
         },
-        { status: 400 }
+        { 
+          status: 400,
+          headers: corsHeaders
+        }
       )
     }
     
-    // Store the brief data
-    storeBrief({
+    // Cache the brief data (for serverless POC)
+    const briefData = cacheWebhookData({
       fullName: String(fullName),
       userEmail: String(userEmail),
       productType: String(productType),
     })
     
-    console.log('Brief data stored:', { fullName, userEmail, productType })
+    console.log('Brief data received and cached:', briefData)
     
+    // Return success response for Botpress handoff
+    // Botpress expects { status: 'received' } to confirm receipt
     return NextResponse.json(
       { 
-        success: true, 
-        message: 'Brief data received and stored',
-        data: { fullName, userEmail, productType }
+        status: 'received'
       },
-      { status: 200 }
+      { 
+        status: 200,
+        headers: corsHeaders
+      }
     )
   } catch (error) {
     console.error('Webhook error:', error)
     return NextResponse.json(
-      { success: false, error: 'Invalid request' },
-      { status: 400 }
+      { 
+        success: false, 
+        error: 'Invalid request' 
+      },
+      { 
+        status: 400,
+        headers: corsHeaders
+      }
     )
   }
 }
@@ -48,7 +71,10 @@ export async function POST(request: NextRequest) {
 export async function GET() {
   return NextResponse.json(
     { message: 'Webhook endpoint is ready' },
-    { status: 200 }
+    { 
+      status: 200,
+      headers: corsHeaders
+    }
   )
 }
 

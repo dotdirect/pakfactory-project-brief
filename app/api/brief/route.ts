@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server'
-import { getBrief } from '@/app/lib/brief-store'
+import { getCachedWebhookData } from '@/app/lib/webhook-cache'
 
 export async function GET() {
-  const brief = getBrief()
+  const brief = getCachedWebhookData()
   
   if (!brief) {
     return NextResponse.json(
