@@ -1,19 +1,6 @@
-# Dependencies
-node_modules
-.next
-out
-build
-
-# Old Vite src directory (not used in Next.js App Router)
-src
+src/
 **/src/**
-
-# Config files
-*.config.js
-*.config.ts
-vite.config.*
-
-# Other
-.DS_Store
-*.log
-
+.eslintrc.cjs
+node_modules/
+.next/
+out/

@@ -23,5 +23,13 @@
     }
   },
   "include": ["next-env.d.ts", "app/**/*.ts", "app/**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules", "src", "vite.config.ts", "index.html", "**/src/**"]
+  "exclude": [
+    "node_modules",
+    "src",
+    "**/src/**",
+    "src/**/*",
+    "vite.config.ts",
+    "index.html",
+    ".eslintrc.cjs"
+  ]
 }
