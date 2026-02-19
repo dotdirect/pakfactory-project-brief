@@ -1,12 +1,36 @@
 'use client'
 
 interface ProductIconProps {
-  productType: string
+  productType?: string | null
   className?: string
 }
 
 // Map productType to high-end visual icons
 export default function ProductIcon({ productType, className = '' }: ProductIconProps) {
+  // Handle undefined/null productType
+  if (!productType) {
+    // Return default icon when productType is not available
+    return (
+      <div className={`flex items-center justify-center ${className}`}>
+        <svg
+          viewBox="0 0 100 100"
+          className="h-16 w-16 text-gray-700"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.5"
+        >
+          {/* Generic box - isometric view */}
+          <path d="M 30 40 L 50 30 L 70 40 L 70 70 L 50 80 L 30 70 Z" strokeWidth="2" />
+          <path d="M 50 30 L 50 80" strokeWidth="2" />
+          <path d="M 30 40 L 30 70" strokeWidth="2" />
+          <path d="M 70 40 L 70 70" strokeWidth="2" />
+          <path d="M 30 40 L 50 30" strokeWidth="1" strokeDasharray="1,1" />
+          <path d="M 70 40 L 50 30" strokeWidth="1" strokeDasharray="1,1" />
+        </svg>
+      </div>
+    )
+  }
+
   const normalizedType = productType.toLowerCase().trim()
 
   // Rigid Box schematic icon

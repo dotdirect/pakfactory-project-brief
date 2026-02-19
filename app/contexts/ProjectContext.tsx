@@ -2,16 +2,37 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react'
 
+export interface CustomerData {
+  firstName: string
+  lastName: string
+  email: string
+  phone: string
+  company: string
+  annualBudget: number
+  industry?: string
+}
+
+export interface ProjectDetails {
+  packagingType: string
+  deliveryCountry: string
+  details?: string
+  quantity: number[]
+  dimensions: string
+}
+
 export interface ProjectData {
-  fullName: string
-  userEmail: string
-  productType: string
+  customer: CustomerData
+  project: ProjectDetails
+  metadata: {
+    source: string
+  }
   timestamp: number
 }
 
 interface ProjectContextType {
   project: ProjectData | null
   setProject: (project: ProjectData | null) => void
+  clearProject: () => void
   isLoading: boolean
 }
 
@@ -23,22 +44,20 @@ export function ProjectProvider({ children }: { children: React.ReactNode }) {
   const [project, setProjectState] = useState<ProjectData | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
-  // Load from localStorage on mount
+  // Clear localStorage on mount (page refresh) and initialize state
   useEffect(() => {
     try {
-      const stored = localStorage.getItem(STORAGE_KEY)
-      if (stored) {
-        const parsed = JSON.parse(stored)
-        setProjectState(parsed)
-      }
+      // Clear localStorage on page load/refresh
+      localStorage.removeItem(STORAGE_KEY)
+      console.log('Project data cleared on page load')
     } catch (error) {
-      console.error('Error loading project from localStorage:', error)
+      console.error('Error clearing project from localStorage:', error)
     } finally {
       setIsLoading(false)
     }
   }, [])
 
-  // Sync to localStorage whenever project changes
+  // Update project state and persist to localStorage during session
   const setProject = (newProject: ProjectData | null) => {
     setProjectState(newProject)
     try {
@@ -52,84 +71,19 @@ export function ProjectProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
-  // Poll webhook cache and localStorage for updates
-  useEffect(() => {
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === STORAGE_KEY) {
-        try {
-          if (e.newValue) {
-            const parsed = JSON.parse(e.newValue)
-            setProjectState(parsed)
-          } else {
-            setProjectState(null)
-          }
-        } catch (error) {
-          console.error('Error parsing storage event:', error)
-        }
-      }
+  // Clear project data from state and localStorage
+  const clearProject = () => {
+    setProjectState(null)
+    try {
+      localStorage.removeItem(STORAGE_KEY)
+      console.log('Project data cleared')
+    } catch (error) {
+      console.error('Error clearing project from localStorage:', error)
     }
-
-    // Listen for storage events (cross-tab updates)
-    // window.addEventListener('storage', handleStorageChange) // DISABLED
-    
-    // Poll for updates from webhook cache and localStorage
-    const checkForUpdates = async () => {
-      try {
-        // Check webhook cache (serverless-compatible)
-        const response = await fetch('/api/brief')
-        const result = await response.json()
-        
-        if (result.data) {
-          const webhookData = result.data
-          // Update if webhook data is newer
-          if (!project || webhookData.timestamp > project.timestamp) {
-            setProjectState(webhookData)
-            // Also sync to localStorage
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(webhookData))
-          }
-        }
-        
-        // Also check localStorage (for persistence)
-        const stored = localStorage.getItem(STORAGE_KEY)
-        if (stored) {
-          const parsed = JSON.parse(stored)
-          // Only update if timestamp is newer
-          if (!project || parsed.timestamp > project.timestamp) {
-            setProjectState(parsed)
-          }
-        } else if (project && !result.data) {
-          // Clear if no data from either source
-          setProjectState(null)
-        }
-      } catch (error) {
-        console.error('Error checking for project updates:', error)
-        // Fallback to localStorage only
-        try {
-          const stored = localStorage.getItem(STORAGE_KEY)
-          if (stored) {
-            const parsed = JSON.parse(stored)
-            if (!project || parsed.timestamp > project.timestamp) {
-              setProjectState(parsed)
-            }
-          }
-        } catch (e) {
-          // Ignore localStorage errors
-        }
-      }
-    }
-
-    // Check immediately, then every 2 seconds for instant updates
-    checkForUpdates()
-    const interval = setInterval(checkForUpdates, 2000)
-    
-    return () => {
-      // window.removeEventListener('storage', handleStorageChange) // DISABLED
-      clearInterval(interval)
-    }
-  }, [project])
+  }
 
   return (
-    <ProjectContext.Provider value={{ project, setProject, isLoading }}>
+    <ProjectContext.Provider value={{ project, setProject, clearProject, isLoading }}>
       {children}
     </ProjectContext.Provider>
   )

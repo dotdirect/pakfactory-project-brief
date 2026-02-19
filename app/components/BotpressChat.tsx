@@ -6,10 +6,7 @@ export default function BotpressChat() {
   return (
     <div className="flex h-[calc(100vh-4rem)] flex-col border-r border-gray-200 bg-white p-6">
       <h2 className="mb-4 text-lg font-semibold">Chat</h2>
-      <div className="flex flex-1 flex-col overflow-hidden border border-gray-200 rounded">
-        {/* Botpress WebChat will mount here - ID must match Botpress settings */}
-        <div id="bp-webchat" className="flex-1 w-full" />
-      </div>
+      <div id="bp-webchat" className="flex-1 w-full" />
       
       {/* Load Botpress WebChat v3.6 script */}
       <Script
