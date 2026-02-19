@@ -3,7 +3,7 @@ import './globals.css'
 import { ProjectProvider } from './contexts/ProjectContext'
 
 export const metadata: Metadata = {
-  title: 'PakSpecialist',
+  title: 'PakSpecialist  - WebChat Solution POC',
   description: 'PakSpecialist - Technical Brief Platform',
 }
 
